@@ -1,4 +1,4 @@
-# machinetest
+# machinetestapp
 
 A new Flutter application.
 
