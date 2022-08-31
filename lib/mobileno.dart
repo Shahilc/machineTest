@@ -9,9 +9,16 @@ class MobileNumber extends StatefulWidget {
 }
 
 class _MobileNumberState extends State<MobileNumber> {
+  bool isLoading=false;
  TextEditingController mobileno=TextEditingController();
  var countryCodeController = TextEditingController(text: "+91");
  PhoneAuthServices _phoneAuthServices = PhoneAuthServices();
+ @override
+  void initState() {
+    // TODO: implement initState
+    isLoading=false;
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +71,9 @@ class _MobileNumberState extends State<MobileNumber> {
         child: InkWell(
           onTap: (){
             if(mobileno.text.length==10){
+              setState(() {
+                isLoading=true;
+              });
               String number = "${countryCodeController.text}${mobileno.text}";
               _phoneAuthServices.verifyPhoneNumber(context, number);
             }else{
@@ -75,7 +85,7 @@ class _MobileNumberState extends State<MobileNumber> {
             }
           },
           child: Container(
-            child: Center(child: Text('Next',style: TextStyle(color: Colors.white,fontSize: 20),)),
+            child: Center(child: isLoading==false?Text('Next',style: TextStyle(color: Colors.white,fontSize: 20),):CircularProgressIndicator(color: Colors.greenAccent,)),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
                color:Color.fromARGB(255, 27 , 63, 21),

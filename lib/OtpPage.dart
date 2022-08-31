@@ -6,6 +6,7 @@ import 'homePage.dart';
 class OtpPage extends StatefulWidget {
   final String number, verificationId;
 
+
   const OtpPage({Key? key, required this.number, required this.verificationId}) : super(key: key);
 
   @override
@@ -13,6 +14,7 @@ class OtpPage extends StatefulWidget {
 }
 
 class _OtpPageState extends State<OtpPage> {
+  bool isLoading=false;
   String otp='';
   @override
   Widget build(BuildContext context) {

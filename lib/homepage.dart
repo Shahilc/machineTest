@@ -28,12 +28,16 @@ class _HomePageState extends State<HomePage> {
   String userId='';
   String userName='';
   String phoneno='';
+  int selectedIndex=0;
   
   @override
   void initState() {
     User? user=FirebaseAuth.instance.currentUser;
     userName=user?.displayName??"No Name";
     phoneno=user?.phoneNumber??"No Number";
+    print('------------colorId-----------------');
+    print(colorId);
+    print('-------------colorId----------------');
     getdata(colorId);
     // TODO: implement initState
     super.initState();
@@ -46,7 +50,15 @@ class _HomePageState extends State<HomePage> {
     APIService apiService = APIService();
     await apiService.getData().then((value){
       itemData=ItemList.fromJson(value[0]);
-      if(colorId==null) colorId=itemData?.tableMenuList[0].menuCategoryId;
+      if(colorId==null){
+        print('open if condition');
+        setState(() {
+          colorId=itemData?.tableMenuList[0].menuCategoryId;
+        });
+        print('close if condition');
+        print(colorId);
+        print('close if condition');
+      }
       int length=itemData?.tableMenuList.length??0;
       String id=colorId;
       print('77777777');
@@ -58,9 +70,6 @@ class _HomePageState extends State<HomePage> {
           firstList=itemData?.tableMenuList[i].categoryDishes.toList()??[];
         }
       }
-      print('------------------------------');
-      print(firstList.map((e) => e.toJson()).toList());
-      print('------------------------------');
       setState(() {
         isLoading=false;
       });
@@ -209,11 +218,11 @@ class _HomePageState extends State<HomePage> {
               return
                     InkWell(
                       onTap: (){
-
                         print(itemData?.tableMenuList[index].menuCategory);
                         print(itemData?.tableMenuList[index].menuCategoryId);
                         setState(() {
                           colorId=itemData?.tableMenuList[index].menuCategoryId;
+                          selectedIndex=index;
                         });
                         getdata(colorId);
                       },
@@ -223,8 +232,8 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('${itemData?.tableMenuList[index].menuCategory}',style: TextStyle(color: colorId==itemData?.tableMenuList[index].menuCategoryId?Colors.red:Colors.black)),
-                            Container(color: colorId==itemData?.tableMenuList[index].menuCategoryId?Colors.red:Colors.white,height: 3,width: 150,)
+                            Text('${itemData?.tableMenuList[index].menuCategory}',style: TextStyle(color: selectedIndex==index?Colors.red:Colors.black)),
+                            Container(color: selectedIndex==index?Colors.red:Colors.white,height: 3,width: 150,)
                           ],
                         ),
 
@@ -327,10 +336,10 @@ class _HomePageState extends State<HomePage> {
                                                 stream: cartBloc.stream,
                                                 builder: (context, snapshot) {List<ItemModel>
                                                 cartList = snapshot.data ?? [];
-                                                int index = cartList.indexWhere((element) => element.id == e.dishId);
+                                                int index = cartList.indexWhere((element) => element.id == int.parse(e.dishId??'0'));
                                                 int qty = 0;
                                                 if (index >= 0) {
-                                                  qty = cartList.where((element) => element.id == e.dishId).fold(0, (t, element) => t + element.qty);
+                                                  qty = cartList.where((element) => element.id == int.parse(e.dishId??'0')).fold(0, (t, element) => t + element.qty);
                                                 }
                                                 return Row(
                                                   children: [
@@ -343,12 +352,7 @@ class _HomePageState extends State<HomePage> {
                                                             children: [
                                                               InkWell(
                                                                 onTap: () {
-                                                                  // cartList[index].subQty();
-                                                                  if(e.qty!>0){
-                                                                    setState(() {
-                                                                      e.qty=e.qty!-1;
-                                                                    });
-                                                                  }
+                                                                  cartList[index].subQty();
                                                                 },
                                                                 child: const SizedBox(
                                                                     height: 20,
@@ -358,8 +362,8 @@ class _HomePageState extends State<HomePage> {
                                                                     )),
                                                               ),
                                                               SizedBox(width: 15,),
-                                                              Text('${e.qty}',
-                                                                  style: const TextStyle(color: Colors.white)),
+                                                              Text('${qty}', style: const TextStyle(color: Colors.white)),
+                                                              // Text('${e.qty}', style: const TextStyle(color: Colors.white)),
                                                               SizedBox(width: 15,),
                                                               InkWell(
                                                                 onTap: () async {
@@ -377,11 +381,7 @@ class _HomePageState extends State<HomePage> {
                                                                   );
 
                                                                   itemModel.addItem();
-                                                                  int newQuantity=1;
-                                                                  e.qty=e.qty!+newQuantity;
-                                                                  setState(() {
 
-                                                                  });
                                                                 },
                                                                 child: const SizedBox(
                                                                     height: 20,
